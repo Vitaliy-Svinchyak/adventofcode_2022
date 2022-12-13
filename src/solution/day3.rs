@@ -1,21 +1,16 @@
 use itertools::Itertools;
 
 pub fn solve(input: String) {
-    let mut i = 2;
-
     let result: u32 = input
         .split("\n")
-        .group_by(|_| {
-            i += 1;
-            i / 3 % 2 == 0
-        })
+        .chunks(3)
         .into_iter()
-        .map(|(.., group)| {
+        .map(|group| {
             let g: Vec<&str> = group.collect();
-            let e0: Vec<char> = g[0].chars().into_iter().collect();
             let e1 = g[1];
             let e2 = g[2];
-            let duplicate = e0
+            let duplicate = g[0]
+                .chars()
                 .into_iter()
                 .find(|ch| e1.contains(&ch.to_string()) && e2.contains(&ch.to_string()))
                 .unwrap();
@@ -27,6 +22,7 @@ pub fn solve(input: String) {
     dbg!(result);
 }
 
+#[allow(unused)]
 pub fn solve_1(input: String) {
     let result: u32 = input
         .split("\n")
