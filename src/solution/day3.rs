@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 pub fn solve(input: String) {
     let result: u32 = input
-        .split("\n")
+        .split('\n')
         .chunks(3)
         .into_iter()
         .map(|group| {
@@ -25,7 +25,7 @@ pub fn solve(input: String) {
 #[allow(unused)]
 pub fn solve_1(input: String) {
     let result: u32 = input
-        .split("\n")
+        .split('\n')
         .map(|rucksack: &str| {
             let items: Vec<char> = rucksack.chars().into_iter().collect();
             let (first_part, second_part) = items.split_at(items.len() / 2);

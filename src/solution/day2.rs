@@ -15,9 +15,9 @@ enum GameResult {
 
 pub fn solve(input: String) {
     let points: u32 = input
-        .split("\n")
+        .split('\n')
         .map(|pair| {
-            let selections: Vec<&str> = pair.split(" ").collect();
+            let selections: Vec<&str> = pair.split(' ').collect();
             let enemy_selection = match_selection(selections[0]);
             let desired_result = match_result(selections[1]);
             get_result_points(desired_result) + get_points_of_selection(enemy_selection, desired_result)

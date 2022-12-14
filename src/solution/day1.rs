@@ -3,7 +3,7 @@ pub fn solve(input: String) {
         .split("\n\n")
         .map(|elf_inventory| {
             elf_inventory
-                .split("\n")
+                .split('\n')
                 .map(|calories| calories.parse::<u32>().expect("Cannot parse calories"))
                 .sum()
         })
