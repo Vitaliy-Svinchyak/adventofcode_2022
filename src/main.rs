@@ -9,7 +9,7 @@ fn main() {
         .parse::<u8>()
         .expect("Cannot parse day as number");
     let input_bytes =
-        fs::read(format!("./input/day{day}.txt")).expect(&format!("No input for day {day}"));
+        fs::read(format!("./input/day{day}.txt")).unwrap_or_else(|_| panic!("No input for day {day}"));
     let input = String::from_utf8(input_bytes).expect("Cannot parse input as string");
 
     solution::solve(input, day);
