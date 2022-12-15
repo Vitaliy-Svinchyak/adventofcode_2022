@@ -92,7 +92,7 @@ fn get_total_size_of_removed_dirs(hdd: &Vec<Dir>) -> usize {
     let current_total_size = get_dir_size(hdd, 0);
     let current_free_space = 70000000 - current_total_size;
     let size_to_clean = 30000000 - current_free_space;
-    let mut sizes = dirs_by_size(hdd);
+    let sizes = dirs_by_size(hdd);
     let biggest_dirs: Vec<usize> = sizes
         .into_iter()
         .filter(|size| *size >= size_to_clean)
