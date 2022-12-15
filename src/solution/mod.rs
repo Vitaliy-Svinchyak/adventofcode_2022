@@ -6,6 +6,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 pub fn solve(input: String, day: usize) {
     let solvers = [
@@ -17,6 +18,7 @@ pub fn solve(input: String, day: usize) {
         day6::solve,
         day7::solve,
         day8::solve,
+        day9::solve,
     ];
     if day > solvers.len() {
         panic!("No solution for day {day}");
