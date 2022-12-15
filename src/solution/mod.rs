@@ -6,16 +6,19 @@ mod day5;
 mod day6;
 mod day7;
 
-pub fn solve(input: String, day: u8) {
-    match day {
-        1 => day1::solve(input),
-        2 => day2::solve(input),
-        3 => day3::solve(input),
-        4 => day4::solve(input),
-        5 => day5::solve(input),
-        6 => day6::solve(input),
-        7 => day7::solve(input),
-        _ => panic!("No solution for day {day}"),
+pub fn solve(input: String, day: usize) {
+    let solvers = [
+        day1::solve,
+        day2::solve,
+        day3::solve,
+        day4::solve,
+        day5::solve,
+        day6::solve,
+        day7::solve,
+    ];
+    if day > solvers.len() {
+        panic!("No solution for day {day}");
     }
-}
 
+    solvers[day - 1](input);
+}
