@@ -12,6 +12,7 @@ pub fn solve(input: String) {
 
     dbg!(answer_1, answer_2);
 }
+
 pub fn solve_with_amount_of_knots(input: &str, amount_of_knots: usize) -> usize {
     let mut rope_parts = vec![Position::default(); amount_of_knots + 1];
     let mut unique_positions = HashSet::new();
@@ -21,6 +22,7 @@ pub fn solve_with_amount_of_knots(input: &str, amount_of_knots: usize) -> usize 
         let mut move_parts = mov.split(' ');
         let direction = move_parts.next().unwrap();
         let distance = move_parts.next().unwrap().parse::<isize>().unwrap();
+
         for _ in 0..distance {
             match direction {
                 "R" => rope_parts[0].x += 1,
@@ -30,31 +32,35 @@ pub fn solve_with_amount_of_knots(input: &str, amount_of_knots: usize) -> usize 
                 _ => unreachable!(),
             }
 
-            for i in 1..rope_parts.len() {
-                let prev_i = i - 1;
-                let head = rope_parts[prev_i];
+            for knot in 1..rope_parts.len() {
+                let head = rope_parts[knot - 1];
+                let tail = rope_parts[knot];
 
-                let tail = rope_parts[i];
                 let x_diff = head.x.abs_diff(tail.x);
                 let y_diff = head.y.abs_diff(tail.y);
+
                 if x_diff + y_diff > 2 {
-                    rope_parts[i].x += if head.x > tail.x { 1 } else { -1 };
-                    rope_parts[i].y += if head.y > tail.y { 1 } else { -1 };
+                    rope_parts[knot].x += get_bonus(head.x, tail.x);
+                    rope_parts[knot].y += get_bonus(head.y, tail.y);
                 } else {
                     if x_diff > 1 {
-                        rope_parts[i].x += if head.x > tail.x { 1 } else { -1 };
+                        rope_parts[knot].x += get_bonus(head.x, tail.x);
                     }
                     if y_diff > 1 {
-                        rope_parts[i].y += if head.y > tail.y { 1 } else { -1 };
+                        rope_parts[knot].y += get_bonus(head.y, tail.y);
                     }
                 }
 
-                if i == rope_parts.len() - 1 {
-                    unique_positions.insert(rope_parts[i]);
+                if knot == amount_of_knots {
+                    unique_positions.insert(rope_parts[knot]);
                 }
             }
         }
     }
 
     unique_positions.len()
+}
+
+fn get_bonus(a: isize, b: isize) -> isize {
+    a.cmp(&b) as isize
 }
