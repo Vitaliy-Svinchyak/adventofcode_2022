@@ -45,27 +45,25 @@ fn construct_hdd(input: String) -> Vec<Dir> {
             }
         } else if row.starts_with("$ ls") {
             // do nothing
+        } else if row.starts_with("dir") {
+            let dir_name = row.replace("dir ", "");
+            let hdd_len = hdd.len();
+            hdd.push(Dir::new(dir_name, pointer));
+            hdd[pointer].add_child(hdd_len);
         } else {
-            if row.starts_with("dir") {
-                let dir_name = row.replace("dir ", "");
-                let hdd_len = hdd.len();
-                hdd.push(Dir::new(dir_name, pointer));
-                hdd[pointer].add_child(hdd_len);
-            } else {
-                let mut file_parts = row.split(' ');
-                let file_size = file_parts.next().unwrap().parse::<usize>().unwrap();
-                hdd[pointer].files_size += file_size;
-            }
+            let mut file_parts = row.split(' ');
+            let file_size = file_parts.next().unwrap().parse::<usize>().unwrap();
+            hdd[pointer].files_size += file_size;
         }
     }
 
     hdd
 }
 
-fn get_root_dirs_with_size_less_than(hdd: &Vec<Dir>, size_limit: usize) -> usize {
+fn get_root_dirs_with_size_less_than(hdd: &[Dir], size_limit: usize) -> usize {
     let mut total_size = 0;
     for (i, ..) in hdd.iter().skip(1).enumerate() {
-        let size = get_dir_size(&hdd, i + 1);
+        let size = get_dir_size(hdd, i + 1);
         if size <= size_limit {
             total_size += size;
         }
@@ -88,7 +86,7 @@ fn get_dir_size(hdd: &[Dir], needed_i: usize) -> usize {
     total_size
 }
 
-fn get_total_size_of_removed_dirs(hdd: &Vec<Dir>) -> usize {
+fn get_total_size_of_removed_dirs(hdd: &[Dir]) -> usize {
     let current_total_size = get_dir_size(hdd, 0);
     let current_free_space = 70000000 - current_total_size;
     let size_to_clean = 30000000 - current_free_space;
@@ -102,7 +100,7 @@ fn get_total_size_of_removed_dirs(hdd: &Vec<Dir>) -> usize {
     *cleaned_size
 }
 
-fn dirs_by_size(hdd: &Vec<Dir>) -> Vec<usize> {
+fn dirs_by_size(hdd: &[Dir]) -> Vec<usize> {
     let mut result: Vec<usize> = hdd
         .iter()
         .enumerate()
