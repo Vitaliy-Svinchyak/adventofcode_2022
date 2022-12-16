@@ -18,7 +18,7 @@ pub fn solve(input: String) {
 
 fn parse_moves(moves: &str) -> Vec<MoveInstruction> {
     moves
-        .split('\n')
+        .lines()
         .map(|mov| {
             let parts: Vec<&str> = mov.split(' ').collect();
             let amount = parts[1].parse::<u8>().unwrap();
@@ -32,7 +32,7 @@ fn parse_moves(moves: &str) -> Vec<MoveInstruction> {
 
 fn parse_crates(crates: &str) -> Vec<Vec<char>> {
     let mut result = vec![vec![]; 10];
-    crates.split('\n').for_each(|row: &str| {
+    crates.lines().for_each(|row: &str| {
         row.chars().enumerate().for_each(|(i, char)| {
             let unicode = char as u32;
             if unicode > 64 && unicode < 91 {

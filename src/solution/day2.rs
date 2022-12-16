@@ -1,90 +1,41 @@
-use crate::solution::day2::Hand::{Paper, Rock, Scissors};
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-enum Hand {
-    Rock,
-    Paper,
-    Scissors,
-}
-#[derive(Copy, Clone, Debug, PartialEq)]
-enum GameResult {
-    Lose,
-    Draw,
-    Win,
-}
-
 pub fn solve(input: String) {
     let points: u32 = input
         .split('\n')
         .map(|pair| {
             let selections: Vec<&str> = pair.split(' ').collect();
-            let enemy_selection = match_selection(selections[0]);
-            let desired_result = match_result(selections[1]);
-            get_result_points(desired_result) + get_points_of_selection(enemy_selection, desired_result)
+            let enemy_selection = selections[0].chars().next().unwrap() as u8;
+            let desired_result = selections[1].chars().next().unwrap() as u8;
+            get_result_points(desired_result)
+                + get_points_of_selection(enemy_selection, desired_result)
         })
         .sum();
 
     dbg!(points);
 }
 
-fn match_result(selection: &str) -> GameResult {
-    match selection {
-        "X" => GameResult::Lose,
-        "Y" => GameResult::Draw,
-        "Z" => GameResult::Win,
-        _ => panic!("Unknown hand {selection}"),
-    }
+fn get_result_points(result: u8) -> u32 {
+    ((result - b'X') * 3) as u32
 }
 
-fn match_selection(selection: &str) -> Hand {
-    match selection {
-        "A" => Rock,
-        "B" => Paper,
-        "C" => Scissors,
-        _ => panic!("Unknown hand {selection}"),
-    }
-}
-
-fn get_result_points(result: GameResult) -> u32 {
-    match result {
-        GameResult::Lose => 0,
-        GameResult::Draw => 3,
-        GameResult::Win => 6
-    }
-}
-
-fn get_points_of_selection(enemy_selection: Hand, desired_result: GameResult) -> u32 {
-    let my_selection = match enemy_selection {
-        Rock => {
-            match desired_result {
-                GameResult::Lose => Scissors,
-                GameResult::Draw => Rock,
-                GameResult::Win => Paper,
+fn get_points_of_selection(enemy_selection: u8, desired_result: u8) -> u32 {
+    let my_selection = match desired_result {
+        b'X' => {
+            if enemy_selection == b'A' {
+                b'C'
+            } else {
+                enemy_selection - 1
             }
         }
-        Paper => {
-            match desired_result {
-                GameResult::Lose => Rock,
-                GameResult::Draw => Paper,
-                GameResult::Win => Scissors,
+        b'Y' => enemy_selection,
+        b'Z' => {
+            if enemy_selection == b'C' {
+                b'A'
+            } else {
+                enemy_selection + 1
             }
         }
-        Scissors => {
-            match desired_result {
-                GameResult::Lose => Paper,
-                GameResult::Draw => Scissors,
-                GameResult::Win => Rock,
-            }
-        }
+        _ => unreachable!(),
     };
 
-    get_points_for_hand(my_selection)
-}
-
-fn get_points_for_hand(selection: Hand) -> u32 {
-    match selection {
-        Rock => 1,
-        Paper => 2,
-        Scissors => 3,
-    }
+    (my_selection - b'A' + 1) as u32
 }

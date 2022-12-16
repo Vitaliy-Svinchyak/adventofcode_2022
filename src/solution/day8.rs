@@ -1,6 +1,6 @@
 pub fn solve(input: String) {
     let tree_matrix: Vec<Vec<u8>> = input
-        .split('\n')
+        .lines()
         .map(|row| {
             row.chars()
                 .map(|char| char.to_string().parse::<u8>().unwrap())

@@ -3,12 +3,12 @@ pub fn solve(input: String) {
         .split("\n\n")
         .map(|elf_inventory| {
             elf_inventory
-                .split('\n')
-                .map(|calories| calories.parse::<u32>().expect("Cannot parse calories"))
+                .lines()
+                .map(|calories| calories.parse::<u32>().unwrap())
                 .sum()
         })
         .collect();
-    callories.sort();
+    callories.sort_unstable();
     let result: u32 = callories.iter().rev().take(3).sum();
 
     dbg!(result);

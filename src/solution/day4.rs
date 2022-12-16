@@ -1,6 +1,6 @@
 pub fn solve(input: String) {
     let overlaps: u32 = input
-        .split('\n')
+        .lines()
         .map(|pair| {
             let a: Vec<&str> = pair.split(',').collect();
             let mut elf1 = a[0].split('-');

@@ -31,7 +31,7 @@ fn construct_hdd(input: String) -> Vec<Dir> {
     let mut hdd = vec![Dir::new("/".to_owned(), 0)];
     let mut pointer: usize = 0;
 
-    for row in input.split('\n') {
+    for row in input.lines() {
         if row.starts_with("$ cd") {
             let place = row.replace("$ cd ", "");
             pointer = match place.as_str() {

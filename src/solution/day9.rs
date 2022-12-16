@@ -18,7 +18,7 @@ pub fn solve_with_amount_of_knots(input: &str, amount_of_knots: usize) -> usize 
     let mut unique_positions = HashSet::new();
     unique_positions.insert(Position::default());
 
-    for mov in input.split('\n') {
+    for mov in input.lines() {
         let mut move_parts = mov.split(' ');
         let direction = move_parts.next().unwrap();
         let distance = move_parts.next().unwrap().parse::<isize>().unwrap();

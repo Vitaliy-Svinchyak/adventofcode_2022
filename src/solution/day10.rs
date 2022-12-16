@@ -7,7 +7,7 @@ pub fn solve(input: String) {
     let mut screen = vec![Vec::with_capacity(40); 6];
     let mut screen_row = 0;
 
-    for command in input.replace(' ', "\n").split('\n') {
+    for command in input.replace(' ', "\n").lines() {
         cycle += 1;
 
         // drawing
