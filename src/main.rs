@@ -1,5 +1,3 @@
-#![feature(is_sorted)]
-
 mod solution;
 
 use std::fs;
