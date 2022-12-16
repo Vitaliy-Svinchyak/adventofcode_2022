@@ -28,13 +28,15 @@ fn solve_2(input: &str) -> u32 {
         .chunks(3)
         .into_iter()
         .map(|group| {
-            let g: Vec<&str> = group.collect();
-            let e1 = g[1];
-            let e2 = g[2];
-            let duplicate = g[0]
+            let rucksacks: Vec<&str> = group.collect();
+            let duplicate = rucksacks[0]
                 .chars()
                 .into_iter()
-                .find(|ch| e1.contains(&ch.to_string()) && e2.contains(&ch.to_string()))
+                .find(|ch| {
+                    let item = ch.to_string();
+                    rucksacks[1].contains(&item)
+                        && rucksacks[2].contains(&item)
+                })
                 .unwrap();
 
             get_char_priority(duplicate)
@@ -43,10 +45,9 @@ fn solve_2(input: &str) -> u32 {
 }
 
 fn get_char_priority(ch: char) -> u32 {
-    let unicode_number = ch as u32;
-    if unicode_number > 96 {
-        unicode_number - 96
+    if ch >= 'a' {
+        ch as u32 - 96
     } else {
-        unicode_number - 38
+        ch as u32 - 38
     }
 }
