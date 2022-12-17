@@ -17,21 +17,17 @@ pub fn solve(input: String) {
             continue;
         }
 
-        for (x, tree_height) in row.iter().enumerate() {
-            if x == 0 || x == max_x {
-                continue;
-            }
+        for x in 1..row.len() - 1 {
             let x_i = x as isize;
             let y_i = y as isize;
-            let is_visible = is_tree_visible_from(&tree_matrix, *tree_height, x_i, y_i, -1, 0)
-                || is_tree_visible_from(&tree_matrix, *tree_height, x_i, y_i, 1, 0)
-                || is_tree_visible_from(&tree_matrix, *tree_height, x_i, y_i, 0, -1)
-                || is_tree_visible_from(&tree_matrix, *tree_height, x_i, y_i, 0, 1);
-            let view_distance =
-                get_tree_view_distance_from(&tree_matrix, *tree_height, x_i, y_i, -1, 0)
-                    * get_tree_view_distance_from(&tree_matrix, *tree_height, x_i, y_i, 1, 0)
-                    * get_tree_view_distance_from(&tree_matrix, *tree_height, x_i, y_i, 0, -1)
-                    * get_tree_view_distance_from(&tree_matrix, *tree_height, x_i, y_i, 0, 1);
+            let is_visible = is_tree_visible_from(&tree_matrix, (x_i, y_i), -1, 0)
+                || is_tree_visible_from(&tree_matrix, (x_i, y_i), 1, 0)
+                || is_tree_visible_from(&tree_matrix, (x_i, y_i), 0, -1)
+                || is_tree_visible_from(&tree_matrix, (x_i, y_i), 0, 1);
+            let view_distance = get_tree_view_distance_from(&tree_matrix, (x_i, y_i), -1, 0)
+                * get_tree_view_distance_from(&tree_matrix, (x_i, y_i), 1, 0)
+                * get_tree_view_distance_from(&tree_matrix, (x_i, y_i), 0, -1)
+                * get_tree_view_distance_from(&tree_matrix, (x_i, y_i), 0, 1);
 
             if view_distance > answer_2 {
                 answer_2 = view_distance;
@@ -48,12 +44,11 @@ pub fn solve(input: String) {
 
 fn is_tree_visible_from(
     tree_matrix: &Vec<Vec<u8>>,
-    tree_height: u8,
-    mut x: isize,
-    mut y: isize,
+    (mut x, mut y): (isize, isize),
     x_bonus: isize,
     y_bonus: isize,
 ) -> bool {
+    let tree_height = tree_matrix[y as usize][x as usize];
     let max_y = (tree_matrix.len() - 1) as isize;
     let max_x = (tree_matrix[0].len() - 1) as isize;
 
@@ -69,19 +64,18 @@ fn is_tree_visible_from(
 }
 fn get_tree_view_distance_from(
     tree_matrix: &Vec<Vec<u8>>,
-    tree_height: u8,
-    mut x: isize,
-    mut y: isize,
+    (mut x, mut y): (isize, isize),
     x_bonus: isize,
     y_bonus: isize,
 ) -> u32 {
+    let tree_height = tree_matrix[y as usize][x as usize];
     let mut distance = 0;
     let max_y = (tree_matrix.len() - 1) as isize;
     let max_x = (tree_matrix[0].len() - 1) as isize;
 
-    while x > 0 && y > 0 && x < max_x && y < max_y {
-        x += x_bonus;
+    while y > 0 && y < max_y && x > 0 && x < max_x {
         y += y_bonus;
+        x += x_bonus;
         distance += 1;
         if tree_matrix[y as usize][x as usize] >= tree_height {
             break;

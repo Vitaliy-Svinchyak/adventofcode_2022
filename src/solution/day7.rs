@@ -31,7 +31,7 @@ fn construct_hdd(input: String) -> Vec<Dir> {
     let mut hdd = vec![Dir::new("/".to_owned(), 0)];
     let mut pointer: usize = 0;
 
-    for row in input.lines().filter(|row| row != &"$ ls") {
+    for row in input.lines().filter(|row| *row != "$ ls") {
         if row.starts_with("$ cd") {
             let place = row.replace("$ cd ", "");
             pointer = match place.as_str() {
@@ -76,13 +76,12 @@ fn get_total_size_of_removed_dirs(hdd: &[Dir]) -> usize {
     let current_free_space = 70000000 - current_total_size;
     let size_to_clean = 30000000 - current_free_space;
     let sizes = dirs_by_size(hdd);
-    let biggest_dirs: Vec<usize> = sizes
+
+    sizes
         .into_iter()
         .filter(|size| *size >= size_to_clean)
-        .collect();
-
-    let cleaned_size = biggest_dirs.last().unwrap();
-    *cleaned_size
+        .last()
+        .unwrap()
 }
 
 fn dirs_by_size(hdd: &[Dir]) -> Vec<usize> {
