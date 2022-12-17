@@ -31,7 +31,7 @@ fn construct_hdd(input: String) -> Vec<Dir> {
     let mut hdd = vec![Dir::new("/".to_owned(), 0)];
     let mut pointer: usize = 0;
 
-    for row in input.lines() {
+    for row in input.lines().filter(|row| row != &"$ ls") {
         if row.starts_with("$ cd") {
             let place = row.replace("$ cd ", "");
             pointer = match place.as_str() {
@@ -43,8 +43,6 @@ fn construct_hdd(input: String) -> Vec<Dir> {
                     .find(|entry| hdd[**entry].name == new_current_dir)
                     .unwrap(),
             }
-        } else if row.starts_with("$ ls") {
-            // do nothing
         } else if row.starts_with("dir") {
             let dir_name = row.replace("dir ", "");
             let hdd_len = hdd.len();
@@ -61,33 +59,20 @@ fn construct_hdd(input: String) -> Vec<Dir> {
 }
 
 fn get_root_dirs_with_size_less_than(hdd: &[Dir], size_limit: usize) -> usize {
-    let mut total_size = 0;
-    for (i, ..) in hdd.iter().skip(1).enumerate() {
-        let size = get_dir_size(hdd, i + 1);
-        if size <= size_limit {
-            total_size += size;
-        }
-    }
-
-    total_size
+    hdd.iter()
+        .map(|dir| get_dir_size(hdd, dir))
+        .filter(|size| *size <= size_limit)
+        .sum()
 }
 
-fn get_dir_size(hdd: &[Dir], needed_i: usize) -> usize {
-    let mut needed_indexes = vec![needed_i];
-    let mut total_size = hdd[needed_i].files_size;
-
-    for (i, dir) in hdd.iter().enumerate() {
-        if needed_indexes.contains(&dir.parent) && i != needed_i {
-            needed_indexes.push(i);
-            total_size += dir.files_size;
-        }
-    }
-
-    total_size
+fn get_dir_size(hdd: &[Dir], dir: &Dir) -> usize {
+    dir.children.iter().fold(dir.files_size, |acc, child| {
+        acc + get_dir_size(hdd, &hdd[*child])
+    })
 }
 
 fn get_total_size_of_removed_dirs(hdd: &[Dir]) -> usize {
-    let current_total_size = get_dir_size(hdd, 0);
+    let current_total_size = get_dir_size(hdd, &hdd[0]);
     let current_free_space = 70000000 - current_total_size;
     let size_to_clean = 30000000 - current_free_space;
     let sizes = dirs_by_size(hdd);
@@ -101,11 +86,7 @@ fn get_total_size_of_removed_dirs(hdd: &[Dir]) -> usize {
 }
 
 fn dirs_by_size(hdd: &[Dir]) -> Vec<usize> {
-    let mut result: Vec<usize> = hdd
-        .iter()
-        .enumerate()
-        .map(|(i, ..)| get_dir_size(hdd, i))
-        .collect();
+    let mut result: Vec<usize> = hdd.iter().map(|dir| get_dir_size(hdd, dir)).collect();
     result.sort_by(|a_size, b_size| b_size.cmp(a_size));
 
     result
