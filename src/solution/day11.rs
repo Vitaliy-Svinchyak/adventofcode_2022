@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 #[derive(Debug, Copy, Clone)]
 enum Operation {
     Multiply(Argument),
@@ -39,22 +41,25 @@ impl Monkey {
         self.items.extend(new_items);
     }
 
-    fn inspect_items(&mut self) {
-        for item in &mut self.items {
-            *item = match self.operation {
-                Operation::Multiply(argument) => match argument {
-                    Argument::Old => *item * *item,
-                    Argument::Number(n) => *item * n,
-                },
-                Operation::Add(argument) => match argument {
-                    Argument::Old => *item + *item,
-                    Argument::Number(n) => *item + n,
-                },
-            };
-            // monkey gets bored
-            *item = *item / 3;
-            self.amount_of_inspections += 1;
-        }
+    fn inspect_items(&mut self, common_factor: usize) -> Vec<usize> {
+        self.items
+            .drain(0..)
+            .map(|mut item| {
+                item = match self.operation {
+                    Operation::Multiply(argument) => match argument {
+                        Argument::Old => item * item,
+                        Argument::Number(n) => item * n,
+                    },
+                    Operation::Add(argument) => match argument {
+                        Argument::Old => item + item,
+                        Argument::Number(n) => item + n,
+                    },
+                };
+                item = item % common_factor;
+                self.amount_of_inspections += 1;
+                item
+            })
+            .collect()
     }
 
     fn get_recipient_of_item(&self, item: usize) -> usize {
@@ -64,31 +69,21 @@ impl Monkey {
             self.if_false_throw_to
         }
     }
-
-    fn clear_items(&mut self) {
-        self.items.clear();
-    }
 }
 
 pub fn solve(input: String) {
     let mut monkeys: Vec<Monkey> = input.split("\n\n").map(parse_monkey).collect();
+    let common_factor: usize = monkeys.iter().map(|m| m.test_divisible).product();
 
     let mut buffer = vec![vec![]; monkeys.len()];
-    for _round in 0..20 {
+    for _round in 0..10000 {
         for (index, monkey) in monkeys.iter_mut().enumerate() {
-            let new_items = std::mem::replace(&mut buffer[index], vec![]);
+            let new_items = std::mem::take(&mut buffer[index]);
             monkey.add_items(new_items);
-            monkey.inspect_items();
-            for item in &monkey.items {
-                let new_owner = monkey.get_recipient_of_item(*item);
-                buffer[new_owner].push(*item);
+            for item in monkey.inspect_items(common_factor) {
+                let new_owner = monkey.get_recipient_of_item(item);
+                buffer[new_owner].push(item);
             }
-            monkey.clear_items();
-        }
-
-        for (index, monkey) in monkeys.iter_mut().enumerate() {
-            let new_items = std::mem::replace(&mut buffer[index], vec![]);
-            monkey.add_items(new_items);
         }
     }
     let mut inspections: Vec<usize> = monkeys
@@ -101,24 +96,18 @@ pub fn solve(input: String) {
 }
 
 fn parse_monkey(monkey: &str) -> Monkey {
-    let mut description_rows = monkey.split("\n").skip(1);
-    let items_raw = description_rows.next().unwrap();
-    let operation_raw = description_rows.next().unwrap();
-    let test_raw = description_rows.next().unwrap();
-    let if_true = description_rows.next().unwrap();
-    let if_false = description_rows.next().unwrap();
+    let description_rows: Vec<&str> = monkey.lines().skip(1).collect();
 
-    let items: Vec<usize> = items_raw
+    let items: Vec<usize> = description_rows[0]
         .replace("Starting items: ", "")
         .trim()
         .split(", ")
         .map(|item| item.parse::<usize>().unwrap())
         .collect();
 
-    let a = operation_raw.replace("Operation: new = old ", "");
-    let mut operation_parts = a.trim().split(" ");
-    let sign = operation_parts.next().unwrap();
-    let argument = operation_parts.next().unwrap();
+    let clean_operation = description_rows[1].replace("Operation: new = old ", "");
+    let (sign, argument): (&str, &str) =
+        clean_operation.split_whitespace().collect_tuple().unwrap();
     let argument = if argument == "old" {
         Argument::Old
     } else {
@@ -130,21 +119,23 @@ fn parse_monkey(monkey: &str) -> Monkey {
         Operation::Add(argument)
     };
 
-    let test_divisible = test_raw
-        .replace("Test: divisible by ", "")
-        .trim()
-        .parse::<usize>()
+    let test_divisible = description_rows[2]
+        .rsplit_once(' ')
+        .unwrap()
+        .1
+        .parse()
         .unwrap();
-
-    let if_true_throw_to = if_true
-        .replace("If true: throw to monkey ", "")
-        .trim()
-        .parse::<usize>()
+    let if_true_throw_to = description_rows[3]
+        .rsplit_once(' ')
+        .unwrap()
+        .1
+        .parse()
         .unwrap();
-    let if_false_throw_to = if_false
-        .replace("If false: throw to monkey ", "")
-        .trim()
-        .parse::<usize>()
+    let if_false_throw_to = description_rows[4]
+        .rsplit_once(' ')
+        .unwrap()
+        .1
+        .parse()
         .unwrap();
 
     Monkey::new(
